@@ -1,75 +1,142 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quiz</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      text-align: center;
-      padding: 20px;
-    }
-    .question {
-      margin: 20px 0;
-      font-size: 20px;
-    }
-    .answers {
-      margin: 10px 0;
-    }
-    .result {
-      font-size: 24px;
-      font-weight: bold;
-      margin-top: 20px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Interactiv</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .quiz-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .question {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .answers {
+            margin-bottom: 20px;
+        }
+        .answer-btn {
+            display: block;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .answer-btn:hover {
+            background-color: #e0e0e0;
+        }
+        #reset-btn {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        #reset-btn:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            font-size: 20px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
 
-  <h1>Test de Cunoștințe</h1>
-
-  <div class="question" id="question1">
-    <p>1. Care este capitala României?</p>
-    <div class="answers">
-      <input type="radio" name="q1" value="București"> București<br>
-      <input type="radio" name="q1" value="Cluj"> Cluj<br>
-      <input type="radio" name="q1" value="Timișoara"> Timișoara<br>
+<div class="quiz-container">
+    <h1>Quiz Interactiv</h1>
+    <div id="question-container">
+        <div class="question" id="question"></div>
+        <div class="answers" id="answers"></div>
     </div>
-  </div>
+    <div id="result"></div>
+    <button id="reset-btn" onclick="resetQuiz()">Începe din nou</button>
+</div>
 
-  <div class="question" id="question2">
-    <p>2. Care este cel mai mare ocean al lumii?</p>
-    <div class="answers">
-      <input type="radio" name="q2" value="Atlantic"> Atlantic<br>
-      <input type="radio" name="q2" value="Pacific"> Pacific<br>
-      <input type="radio" name="q2" value="Indian"> Indian<br>
-    </div>
-  </div>
+<script>
+    const questions = [
+        {
+            question: "Care este capitala României?",
+            answers: ["București", "Cluj-Napoca", "Timișoara", "Iași"],
+            correctAnswer: "București"
+        },
+        {
+            question: "Care este cel mai mare ocean al lumii?",
+            answers: ["Oceanul Pacific", "Oceanul Atlantic", "Oceanul Indian", "Oceanul Arctic"],
+            correctAnswer: "Oceanul Pacific"
+        },
+        {
+            question: "Cine a scris 'Ion'?",
+            answers: ["Liviu Rebreanu", "Mihail Sadoveanu", "Ion Luca Caragiale", "George Coșbuc"],
+            correctAnswer: "Liviu Rebreanu"
+        }
+    ];
 
-  <button onclick="evaluateQuiz()">Verifică Răspunsurile</button>
+    let currentQuestionIndex = 0;
+    let score = 0;
 
-  <div class="result" id="result"></div>
+    // Functie pentru a afisa urmatoarea intrebare
+    function loadQuestion() {
+        const question = questions[currentQuestionIndex];
+        document.getElementById("question").textContent = question.question;
 
-  <script>
-    function evaluateQuiz() {
-      let score = 0;
-      let totalQuestions = 2;
-
-      // Întrebarea 1
-      if (document.querySelector('input[name="q1"]:checked')?.value === 'București') {
-        score++;
-      }
-
-      // Întrebarea 2
-      if (document.querySelector('input[name="q2"]:checked')?.value === 'Pacific') {
-        score++;
-      }
-
-      // Afișează rezultatul
-      document.getElementById('result').textContent = "Ai " + score + " din " + totalQuestions + " răspunsuri corecte!";
+        const answersContainer = document.getElementById("answers");
+        answersContainer.innerHTML = ''; // Golim containerul pentru raspunsuri
+        question.answers.forEach(answer => {
+            const answerBtn = document.createElement("button");
+            answerBtn.textContent = answer;
+            answerBtn.classList.add("answer-btn");
+            answerBtn.onclick = () => checkAnswer(answer);
+            answersContainer.appendChild(answerBtn);
+        });
     }
-  </script>
+
+    // Functie pentru a verifica raspunsul
+    function checkAnswer(answer) {
+        const correctAnswer = questions[currentQuestionIndex].correctAnswer;
+        if (answer === correctAnswer) {
+            score++;
+        }
+        currentQuestionIndex++;
+
+        if (currentQuestionIndex < questions.length) {
+            loadQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    // Functie pentru a afisa rezultatul
+    function showResult() {
+        const resultContainer = document.getElementById("result");
+        resultContainer.textContent = `Ai răspuns corect la ${score} din ${questions.length} întrebări!`;
+        document.getElementById("question-container").style.display = "none"; // Ascunde intrebările
+    }
+
+    // Functie pentru a reseta quiz-ul
+    function resetQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        document.getElementById("result").textContent = ''; // Sterge rezultatul
+        document.getElementById("question-container").style.display = "block"; // Arata intrebările
+        loadQuestion(); // Incarca prima intrebare
+    }
+
+    // Incarca prima intrebare
+    loadQuestion();
+</script>
 
 </body>
 </html>
